@@ -4,10 +4,17 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
+    console.log('API fichas-tecnicas GET: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('API fichas-tecnicas GET: Auth check result:', { 
+      user: user ? { id: user.id, email: user.email } : null, 
+      authError: authError?.message 
+    })
+
     if (authError || !user) {
+      console.log('API fichas-tecnicas GET: Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -44,10 +51,17 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('API fichas-tecnicas POST: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('API fichas-tecnicas POST: Auth check result:', { 
+      user: user ? { id: user.id, email: user.email } : null, 
+      authError: authError?.message 
+    })
+
     if (authError || !user) {
+      console.log('API fichas-tecnicas POST: Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

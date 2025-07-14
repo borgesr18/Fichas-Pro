@@ -45,13 +45,29 @@ export default function FichasTecnicasPage() {
 
   const fetchFichas = async () => {
     try {
+      console.log('Fichas Técnicas: Fetching data from API...', new Date().toISOString())
       const response = await fetch('/api/fichas-tecnicas')
+      
+      console.log('Fichas Técnicas: API response:', { 
+        status: response.status, 
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      })
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Fichas Técnicas: Data loaded successfully:', { count: data.length })
         setFichas(data)
+      } else {
+        const errorData = await response.text()
+        console.error('Fichas Técnicas: API error:', { status: response.status, error: errorData })
+        
+        if (response.status === 401) {
+          console.error('Fichas Técnicas: Authentication failed - user may need to login again')
+        }
       }
     } catch (error) {
-      console.error('Erro ao buscar fichas técnicas:', error)
+      console.error('Fichas Técnicas: Network error:', error)
     } finally {
       setLoading(false)
     }

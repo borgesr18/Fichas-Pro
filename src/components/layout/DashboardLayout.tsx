@@ -20,18 +20,40 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     const getUser = async () => {
-      console.log('DashboardLayout: Getting user...')
-      const { data: { user }, error } = await supabase.auth.getUser()
-      console.log('DashboardLayout: User data:', { user, error })
+      console.log('DashboardLayout: Getting user session...', new Date().toISOString())
       
-      setUser(user)
-      setLoading(false)
-      
-      if (!user) {
-        console.log('DashboardLayout: No user found, redirecting to login')
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        console.log('DashboardLayout: Auth check result:', { 
+          user: user ? { id: user.id, email: user.email } : null, 
+          error: error?.message,
+          timestamp: new Date().toISOString()
+        })
+        
+        setUser(user)
+        setLoading(false)
+        
+        if (!user) {
+          console.log('DashboardLayout: No authenticated user - redirecting to login')
+          router.push('/auth/login')
+        } else {
+          console.log('DashboardLayout: User authenticated successfully:', user.email)
+          
+          setTimeout(async () => {
+            try {
+              console.log('DashboardLayout: Testing API authentication...')
+              const response = await fetch('/api/auth/debug')
+              const result = await response.json()
+              console.log('DashboardLayout: API auth test result:', result)
+            } catch (err) {
+              console.error('DashboardLayout: API auth test failed:', err)
+            }
+          }, 500)
+        }
+      } catch (err) {
+        console.error('DashboardLayout: Error getting user:', err)
+        setLoading(false)
         router.push('/auth/login')
-      } else {
-        console.log('DashboardLayout: User authenticated:', user.email)
       }
     }
 
@@ -39,11 +61,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('DashboardLayout: Auth state change:', event, session?.user?.email)
+        console.log('DashboardLayout: Auth state change:', { 
+          event, 
+          user: session?.user?.email,
+          timestamp: new Date().toISOString()
+        })
+        
         if (event === 'SIGNED_OUT' || !session) {
+          console.log('DashboardLayout: User signed out - redirecting to login')
           setUser(null)
           router.push('/auth/login')
-        } else {
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          console.log('DashboardLayout: User session updated:', session.user.email)
           setUser(session.user)
         }
       }

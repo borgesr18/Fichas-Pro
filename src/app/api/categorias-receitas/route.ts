@@ -4,10 +4,17 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
+    console.log('API categorias-receitas GET: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('API categorias-receitas GET: Auth check result:', { 
+      user: user ? { id: user.id, email: user.email } : null, 
+      authError: authError?.message 
+    })
+
     if (authError || !user) {
+      console.log('API categorias-receitas GET: Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -32,10 +39,17 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('API categorias-receitas POST: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('API categorias-receitas POST: Auth check result:', { 
+      user: user ? { id: user.id, email: user.email } : null, 
+      authError: authError?.message 
+    })
+
     if (authError || !user) {
+      console.log('API categorias-receitas POST: Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

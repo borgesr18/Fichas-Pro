@@ -34,13 +34,29 @@ export default function FornecedoresPage() {
 
   const fetchFornecedores = async () => {
     try {
+      console.log('Fornecedores: Fetching data from API...', new Date().toISOString())
       const response = await fetch('/api/fornecedores')
+      
+      console.log('Fornecedores: API response:', { 
+        status: response.status, 
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      })
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Fornecedores: Data loaded successfully:', { count: data.length })
         setFornecedores(data)
+      } else {
+        const errorData = await response.text()
+        console.error('Fornecedores: API error:', { status: response.status, error: errorData })
+        
+        if (response.status === 401) {
+          console.error('Fornecedores: Authentication failed - user may need to login again')
+        }
       }
     } catch (error) {
-      console.error('Erro ao buscar fornecedores:', error)
+      console.error('Fornecedores: Network error:', error)
     } finally {
       setLoading(false)
     }

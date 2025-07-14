@@ -14,9 +14,12 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         get(name: string) {
-          return request.cookies.get(name)?.value
+          const value = request.cookies.get(name)?.value
+          console.log('Middleware: Cookie get:', { name, hasValue: !!value })
+          return value
         },
         set(name: string, value: string, options: Record<string, unknown>) {
+          console.log('Middleware: Cookie set:', { name, hasValue: !!value })
           request.cookies.set({
             name,
             value,
@@ -34,6 +37,7 @@ export async function middleware(request: NextRequest) {
           })
         },
         remove(name: string, options: Record<string, unknown>) {
+          console.log('Middleware: Cookie remove:', { name })
           request.cookies.set({
             name,
             value: '',
@@ -59,14 +63,34 @@ export async function middleware(request: NextRequest) {
     error: authError
   } = await supabase.auth.getUser()
 
-  console.log('Middleware: Auth check for', request.nextUrl.pathname, { user: user?.email, authError })
+  console.log('Middleware: Processing request:', {
+    path: request.nextUrl.pathname,
+    timestamp: new Date().toISOString(),
+    cookies: request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value }))
+  })
 
-  if (!user && !request.nextUrl.pathname.startsWith('/auth')) {
-    console.log('Middleware: Redirecting to login - no user found')
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+  console.log('Middleware: Auth check result:', {
+    path: request.nextUrl.pathname,
+    user: user ? { id: user.id, email: user.email } : null,
+    authError: authError?.message,
+    timestamp: new Date().toISOString()
+  })
+
+  if (request.nextUrl.pathname.startsWith('/dashboard') || 
+      request.nextUrl.pathname.startsWith('/fornecedores') ||
+      request.nextUrl.pathname.startsWith('/insumos') ||
+      request.nextUrl.pathname.startsWith('/fichas-tecnicas') ||
+      request.nextUrl.pathname.startsWith('/configuracoes')) {
+    
+    if (!user) {
+      console.log('Middleware: Redirecting to login - no authenticated user for protected route')
+      return NextResponse.redirect(new URL('/auth/login', request.url))
+    } else {
+      console.log('Middleware: Access granted to protected route:', request.nextUrl.pathname)
+    }
   }
 
-  if (user && request.nextUrl.pathname.startsWith('/auth')) {
+  if (request.nextUrl.pathname.startsWith('/auth') && user) {
     console.log('Middleware: Redirecting to dashboard - user already authenticated')
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }

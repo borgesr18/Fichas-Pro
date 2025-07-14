@@ -18,7 +18,7 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    console.log('Attempting login with email:', email)
+    console.log('Login attempt started:', { email, timestamp: new Date().toISOString() })
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -26,14 +26,31 @@ export default function LoginPage() {
         password,
       })
 
-      console.log('Supabase login response:', { data, error })
+      console.log('Supabase login response:', { 
+        user: data.user ? { id: data.user.id, email: data.user.email } : null,
+        session: data.session ? { access_token: data.session.access_token.substring(0, 20) + '...', expires_at: data.session.expires_at } : null,
+        error: error?.message 
+      })
 
       if (error) {
-        console.error('Supabase login error:', error)
+        console.error('Login failed:', error.message)
         setError(error.message)
-      } else if (data.user) {
-        console.log('Login successful, user:', data.user)
+      } else if (data.user && data.session) {
+        console.log('Login successful - redirecting to dashboard')
+        
+        setTimeout(async () => {
+          try {
+            const { data: { user } } = await supabase.auth.getUser()
+            console.log('Session verification after login:', { user: user?.email })
+          } catch (err) {
+            console.error('Session verification failed:', err)
+          }
+        }, 1000)
+        
         router.push('/dashboard')
+      } else {
+        console.error('Login incomplete - missing user or session')
+        setError('Login incompleto. Tente novamente.')
       }
     } catch (err) {
       console.error('Unexpected login error:', err)
