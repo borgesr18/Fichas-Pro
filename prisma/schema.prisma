@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VISUALIZADOR
+}
+
+enum CondicaoArmazenamento {
+  AMBIENTE_SECO
+  REFRIGERADO
+  CONGELADO
+}
+
+enum NivelDificuldade {
+  BASICO
+  INTERMEDIARIO
+  AVANCADO
+}
+
+enum TipoUnidade {
+  PESO
+  VOLUME
+  UNIDADE
+}
+
+enum TipoMovimentacao {
+  ENTRADA
+  SAIDA
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nome      String
+  role      UserRole @default(EDITOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  categoriasReceitas CategoriaReceita[]
+  categoriasInsumos  CategoriaInsumo[]
+  fornecedores       Fornecedor[]
+  insumos            Insumo[]
+  fichasTecnicas     FichaTecnica[]
+  movimentacoes      MovimentacaoEstoque[]
+
+  @@map("users")
+}
+
+model CategoriaReceita {
+  id        String   @id @default(cuid())
+  nome      String
+  descricao String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fichasTecnicas FichaTecnica[]
+
+  @@map("categorias_receitas")
+}
+
+model CategoriaInsumo {
+  id        String   @id @default(cuid())
+  nome      String
+  descricao String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  insumos Insumo[]
+
+  @@map("categorias_insumos")
+}
+
+model UnidadeMedida {
+  id         String      @id @default(cuid())
+  nome       String
+  abreviacao String
+  tipo       TipoUnidade
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  insumos             Insumo[]
+  ingredientesFichas  IngredienteFicha[]
+  movimentacoes       MovimentacaoEstoque[]
+
+  @@map("unidades_medida")
+}
+
+model Fornecedor {
+  id        String   @id @default(cuid())
+  nome      String
+  contato   String?
+  telefone  String?
+  email     String?
+  endereco  String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  insumos Insumo[]
+
+  @@map("fornecedores")
+}
+
+model Insumo {
+  id                     String                 @id @default(cuid())
+  nome                   String
+  categoriaId            String
+  unidadeId              String
+  precoPorUnidade        Decimal                @db.Decimal(10, 2)
+  fornecedorId           String?
+  dataCompra             DateTime?
+  estoqueAtual           Decimal                @default(0) @db.Decimal(10, 3)
+  estoqueMinimo          Decimal                @default(0) @db.Decimal(10, 3)
+  condicaoArmazenamento  CondicaoArmazenamento  @default(AMBIENTE_SECO)
+  userId                 String
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+
+  user               User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoria          CategoriaInsumo        @relation(fields: [categoriaId], references: [id])
+  unidade            UnidadeMedida          @relation(fields: [unidadeId], references: [id])
+  fornecedor         Fornecedor?            @relation(fields: [fornecedorId], references: [id])
+  ingredientesFichas IngredienteFicha[]
+  movimentacoes      MovimentacaoEstoque[]
+
+  @@map("insumos")
+}
+
+model FichaTecnica {
+  id               String          @id @default(cuid())
+  nome             String
+  categoriaId      String
+  tempoPreparo     Int?            // em minutos
+  temperaturaForno Int?            // em graus Celsius
+  modoPreparo      String?         @db.Text
+  pesoFinal        Decimal         @db.Decimal(10, 2) // em gramas
+  observacoes      String?         @db.Text
+  nivelDificuldade NivelDificuldade @default(BASICO)
+  versao           Int             @default(1)
+  userId           String
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoria   CategoriaReceita   @relation(fields: [categoriaId], references: [id])
+  ingredientes IngredienteFicha[]
+
+  @@map("fichas_tecnicas")
+}
+
+model IngredienteFicha {
+  id                  String  @id @default(cuid())
+  fichaId             String
+  insumoId            String
+  quantidade          Decimal @db.Decimal(10, 3)
+  unidadeId           String
+  porcentagemPadeiro  Decimal? @db.Decimal(5, 2) // calculado automaticamente
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  ficha   FichaTecnica  @relation(fields: [fichaId], references: [id], onDelete: Cascade)
+  insumo  Insumo        @relation(fields: [insumoId], references: [id])
+  unidade UnidadeMedida @relation(fields: [unidadeId], references: [id])
+
+  @@map("ingredientes_fichas")
+}
+
+model MovimentacaoEstoque {
+  id          String           @id @default(cuid())
+  insumoId    String
+  tipo        TipoMovimentacao
+  quantidade  Decimal          @db.Decimal(10, 3)
+  unidadeId   String
+  motivo      String?
+  fichaId     String?          // se a movimentação foi por uso em ficha
+  userId      String
+  createdAt   DateTime         @default(now())
+
+  insumo  Insumo        @relation(fields: [insumoId], references: [id])
+  unidade UnidadeMedida @relation(fields: [unidadeId], references: [id])
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("movimentacoes_estoque")
+}
