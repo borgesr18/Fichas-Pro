@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   try {
     console.log('API insumos PUT: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
@@ -40,7 +41,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     const insumo = await prisma.insumo.update({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id
       },
       data: {
@@ -71,7 +72,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   try {
     console.log('API insumos DELETE: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
@@ -89,7 +91,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     await prisma.insumo.delete({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id
       }
     })

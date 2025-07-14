@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   try {
     console.log('API fichas-tecnicas PUT: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
@@ -40,7 +41,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     await prisma.fichaTecnica.update({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id
       },
       data: {
@@ -49,7 +50,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         tempoPreparo: tempoPreparo ? parseInt(tempoPreparo) : null,
         temperaturaForno: temperaturaForno ? parseInt(temperaturaForno) : null,
         modoPreparo,
-        pesoFinal: pesoFinal ? parseFloat(pesoFinal) : null,
+        pesoFinal: pesoFinal ? parseFloat(pesoFinal) : undefined,
         observacoes,
         nivelDificuldade,
         versao: {
@@ -61,16 +62,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (ingredientes && Array.isArray(ingredientes)) {
       await prisma.ingredienteFicha.deleteMany({
         where: {
-          fichaId: params.id
+          fichaId: id
         }
       })
 
       for (const ingrediente of ingredientes) {
         await prisma.ingredienteFicha.create({
           data: {
-            fichaId: params.id,
-            insumoId: ingrediente.insumoId,
+            fichaId: id,
+            insumoId: String(ingrediente.insumoId),
             quantidade: parseFloat(ingrediente.quantidade),
+            unidadeId: String(ingrediente.unidadeId),
             porcentagemPadeiro: ingrediente.porcentagemPadeiro ? parseFloat(ingrediente.porcentagemPadeiro) : null
           }
         })
@@ -78,7 +80,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     const fichaCompleta = await prisma.fichaTecnica.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         categoria: true,
         ingredientes: {
@@ -103,7 +105,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   try {
     console.log('API fichas-tecnicas DELETE: Starting authentication check...', new Date().toISOString())
     const supabase = await createServerSupabaseClient()
@@ -121,13 +124,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     await prisma.ingredienteFicha.deleteMany({
       where: {
-        fichaId: params.id
+        fichaId: id
       }
     })
 
     await prisma.fichaTecnica.delete({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id
       }
     })
