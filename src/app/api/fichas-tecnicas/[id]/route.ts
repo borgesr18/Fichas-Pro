@@ -38,7 +38,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       )
     }
 
-    const ficha = await prisma.fichaTecnica.update({
+    await prisma.fichaTecnica.update({
       where: {
         id: params.id,
         userId: user.id
