@@ -37,11 +37,48 @@ interface FichaTecnica {
 export default function FichasTecnicasPage() {
   const [fichas, setFichas] = useState<FichaTecnica[]>([])
   const [loading, setLoading] = useState(true)
-  const [, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(false)
+  const [editingFicha, setEditingFicha] = useState<FichaTecnica | null>(null)
+  const [categorias, setCategorias] = useState<Array<{id: string, nome: string}>>([])
+  const [insumos, setInsumos] = useState<Array<{id: string, nome: string, unidade: {nome: string, abreviacao: string}}>>([])
+  const [formData, setFormData] = useState({
+    nome: '',
+    categoriaId: '',
+    tempoPreparo: '',
+    temperaturaForno: '',
+    modoPreparo: '',
+    pesoFinal: '',
+    observacoes: '',
+    nivelDificuldade: 'BASICO'
+  })
+  const [ingredientes, setIngredientes] = useState<Array<{insumoId: string, quantidade: string, porcentagemPadeiro: string}>>([])
+  const [error, setError] = useState('')
 
   useEffect(() => {
     fetchFichas()
+    fetchDependencies()
   }, [])
+
+  const fetchDependencies = async () => {
+    try {
+      const [categoriasRes, insumosRes] = await Promise.all([
+        fetch('/api/categorias-receitas'),
+        fetch('/api/insumos')
+      ])
+
+      if (categoriasRes.ok) {
+        const categoriasData = await categoriasRes.json()
+        setCategorias(categoriasData)
+      }
+
+      if (insumosRes.ok) {
+        const insumosData = await insumosRes.json()
+        setInsumos(insumosData)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dependências:', error)
+    }
+  }
 
   const fetchFichas = async () => {
     try {
@@ -71,6 +108,110 @@ export default function FichasTecnicasPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const url = editingFicha ? `/api/fichas-tecnicas/${editingFicha.id}` : '/api/fichas-tecnicas'
+      const method = editingFicha ? 'PUT' : 'POST'
+
+      const payload = {
+        ...formData,
+        ingredientes: ingredientes.filter(ing => ing.insumoId && ing.quantidade)
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (response.ok) {
+        await fetchFichas()
+        setShowForm(false)
+        setEditingFicha(null)
+        setFormData({
+          nome: '',
+          categoriaId: '',
+          tempoPreparo: '',
+          temperaturaForno: '',
+          modoPreparo: '',
+          pesoFinal: '',
+          observacoes: '',
+          nivelDificuldade: 'BASICO'
+        })
+        setIngredientes([])
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'Erro ao salvar ficha técnica')
+        console.error('Erro ao salvar ficha técnica:', errorData)
+      }
+    } catch (error) {
+      setError('Erro de conexão')
+      console.error('Erro ao salvar ficha técnica:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEdit = (ficha: FichaTecnica) => {
+    setEditingFicha(ficha)
+    setFormData({
+      nome: ficha.nome,
+      categoriaId: ficha.categoria.id,
+      tempoPreparo: ficha.tempoPreparo?.toString() || '',
+      temperaturaForno: ficha.temperaturaForno?.toString() || '',
+      modoPreparo: ficha.modoPreparo,
+      pesoFinal: ficha.pesoFinal?.toString() || '',
+      observacoes: (ficha as any).observacoes || '',
+      nivelDificuldade: ficha.nivelDificuldade
+    })
+    setIngredientes(ficha.ingredientes.map(ing => ({
+      insumoId: ing.insumo.id,
+      quantidade: ing.quantidade.toString(),
+      porcentagemPadeiro: ing.porcentagemPadeiro?.toString() || ''
+    })))
+    setShowForm(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir esta ficha técnica?')) {
+      try {
+        const response = await fetch(`/api/fichas-tecnicas/${id}`, {
+          method: 'DELETE',
+        })
+
+        if (response.ok) {
+          await fetchFichas()
+        } else {
+          const errorData = await response.json()
+          setError(errorData.error || 'Erro ao excluir ficha técnica')
+        }
+      } catch (error) {
+        setError('Erro de conexão')
+        console.error('Erro ao excluir ficha técnica:', error)
+      }
+    }
+  }
+
+  const addIngrediente = () => {
+    setIngredientes([...ingredientes, { insumoId: '', quantidade: '', porcentagemPadeiro: '' }])
+  }
+
+  const removeIngrediente = (index: number) => {
+    setIngredientes(ingredientes.filter((_, i) => i !== index))
+  }
+
+  const updateIngrediente = (index: number, field: string, value: string) => {
+    const updated = [...ingredientes]
+    updated[index] = { ...updated[index], [field]: value }
+    setIngredientes(updated)
   }
 
   const handlePrint = (ficha: FichaTecnica) => {
@@ -181,6 +322,234 @@ export default function FichasTecnicasPage() {
           </button>
         </div>
 
+        {showForm && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              {editingFicha ? 'Editar Ficha Técnica' : 'Nova Ficha Técnica'}
+            </h3>
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="nome" className="block text-sm font-medium text-gray-700">
+                    Nome *
+                  </label>
+                  <input
+                    type="text"
+                    id="nome"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="categoriaId" className="block text-sm font-medium text-gray-700">
+                    Categoria *
+                  </label>
+                  <select
+                    id="categoriaId"
+                    value={formData.categoriaId}
+                    onChange={(e) => setFormData({ ...formData, categoriaId: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    required
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    {categorias.map((categoria) => (
+                      <option key={categoria.id} value={categoria.id}>
+                        {categoria.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="tempoPreparo" className="block text-sm font-medium text-gray-700">
+                    Tempo de Preparo (min)
+                  </label>
+                  <input
+                    type="number"
+                    id="tempoPreparo"
+                    value={formData.tempoPreparo}
+                    onChange={(e) => setFormData({ ...formData, tempoPreparo: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="temperaturaForno" className="block text-sm font-medium text-gray-700">
+                    Temperatura do Forno (°C)
+                  </label>
+                  <input
+                    type="number"
+                    id="temperaturaForno"
+                    value={formData.temperaturaForno}
+                    onChange={(e) => setFormData({ ...formData, temperaturaForno: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="pesoFinal" className="block text-sm font-medium text-gray-700">
+                    Peso Final (g)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    id="pesoFinal"
+                    value={formData.pesoFinal}
+                    onChange={(e) => setFormData({ ...formData, pesoFinal: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="nivelDificuldade" className="block text-sm font-medium text-gray-700">
+                    Nível de Dificuldade
+                  </label>
+                  <select
+                    id="nivelDificuldade"
+                    value={formData.nivelDificuldade}
+                    onChange={(e) => setFormData({ ...formData, nivelDificuldade: e.target.value })}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  >
+                    <option value="BASICO">Básico</option>
+                    <option value="INTERMEDIARIO">Intermediário</option>
+                    <option value="AVANCADO">Avançado</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label htmlFor="modoPreparo" className="block text-sm font-medium text-gray-700">
+                  Modo de Preparo *
+                </label>
+                <textarea
+                  id="modoPreparo"
+                  value={formData.modoPreparo}
+                  onChange={(e) => setFormData({ ...formData, modoPreparo: e.target.value })}
+                  rows={4}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="observacoes" className="block text-sm font-medium text-gray-700">
+                  Observações
+                </label>
+                <textarea
+                  id="observacoes"
+                  value={formData.observacoes}
+                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                  rows={3}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-md font-medium text-gray-900">Ingredientes</h4>
+                  <button
+                    type="button"
+                    onClick={addIngrediente}
+                    className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-indigo-100 hover:bg-indigo-200"
+                  >
+                    Adicionar Ingrediente
+                  </button>
+                </div>
+                
+                {ingredientes.map((ingrediente, index) => (
+                  <div key={index} className="grid grid-cols-1 gap-4 sm:grid-cols-4 mb-4 p-4 border border-gray-200 rounded-md">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Insumo
+                      </label>
+                      <select
+                        value={ingrediente.insumoId}
+                        onChange={(e) => updateIngrediente(index, 'insumoId', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      >
+                        <option value="">Selecione um insumo</option>
+                        {insumos.map((insumo) => (
+                          <option key={insumo.id} value={insumo.id}>
+                            {insumo.nome} ({insumo.unidade.abreviacao})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Quantidade
+                      </label>
+                      <input
+                        type="number"
+                        step="0.001"
+                        value={ingrediente.quantidade}
+                        onChange={(e) => updateIngrediente(index, 'quantidade', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        % Padeiro
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={ingrediente.porcentagemPadeiro}
+                        onChange={(e) => updateIngrediente(index, 'porcentagemPadeiro', e.target.value)}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <button
+                        type="button"
+                        onClick={() => removeIngrediente(index)}
+                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-600 bg-red-100 hover:bg-red-200"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForm(false)
+                    setEditingFicha(null)
+                    setError('')
+                    setFormData({
+                      nome: '',
+                      categoriaId: '',
+                      tempoPreparo: '',
+                      temperaturaForno: '',
+                      modoPreparo: '',
+                      pesoFinal: '',
+                      observacoes: '',
+                      nivelDificuldade: 'BASICO'
+                    })
+                    setIngredientes([])
+                  }}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                >
+                  {loading ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
@@ -227,7 +596,10 @@ export default function FichasTecnicasPage() {
                         >
                           Imprimir
                         </button>
-                        <button className="flex-1 inline-flex justify-center items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <button 
+                          onClick={() => handleEdit(ficha)}
+                          className="flex-1 inline-flex justify-center items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
                           Editar
                         </button>
                       </div>
