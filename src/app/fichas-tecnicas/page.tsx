@@ -169,7 +169,7 @@ export default function FichasTecnicasPage() {
       temperaturaForno: ficha.temperaturaForno?.toString() || '',
       modoPreparo: ficha.modoPreparo,
       pesoFinal: ficha.pesoFinal?.toString() || '',
-      observacoes: (ficha as { observacoes?: string }).observacoes || '',
+      observacoes: ficha.observacoesTecnicas || '',
       nivelDificuldade: ficha.nivelDificuldade
     })
     setIngredientes(ficha.ingredientes.map(ing => ({
