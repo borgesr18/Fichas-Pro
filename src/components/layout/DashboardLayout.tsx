@@ -106,7 +106,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setSidebarOpen={setSidebarOpen}
       />
       
-      <div className="flex flex-col flex-1 md:ml-64 overflow-hidden">
+      <div className="flex flex-col flex-1 md:ml-72 overflow-hidden">
         <Header 
           user={user}
           onLogout={handleLogout}
