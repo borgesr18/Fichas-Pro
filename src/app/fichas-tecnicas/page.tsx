@@ -169,7 +169,7 @@ export default function FichasTecnicasPage() {
       temperaturaForno: ficha.temperaturaForno?.toString() || '',
       modoPreparo: ficha.modoPreparo,
       pesoFinal: ficha.pesoFinal?.toString() || '',
-      observacoes: (ficha as any).observacoes || '',
+      observacoes: (ficha as { observacoes?: string }).observacoes || '',
       nivelDificuldade: ficha.nivelDificuldade
     })
     setIngredientes(ficha.ingredientes.map(ing => ({
@@ -601,6 +601,12 @@ export default function FichasTecnicasPage() {
                           className="flex-1 inline-flex justify-center items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           Editar
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(ficha.id)}
+                          className="flex-1 inline-flex justify-center items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                          Excluir
                         </button>
                       </div>
                     </div>
