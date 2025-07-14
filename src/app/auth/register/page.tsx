@@ -35,7 +35,7 @@ export default function RegisterPage() {
       } else if (data.user) {
         router.push('/dashboard')
       }
-    } catch (err) {
+    } catch {
       setError('Erro inesperado. Tente novamente.')
     } finally {
       setLoading(false)

@@ -1,9 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { createClient } from '@/lib/supabase'
-import { prisma } from '@/lib/prisma'
 
 export default function ConfiguracoesPage() {
   const [activeTab, setActiveTab] = useState('categorias-receitas')
@@ -55,7 +53,6 @@ export default function ConfiguracoesPage() {
 }
 
 function CategoriasReceitas() {
-  const [categorias, setCategorias] = useState([])
   const [nome, setNome] = useState('')
   const [descricao, setDescricao] = useState('')
   const [loading, setLoading] = useState(false)

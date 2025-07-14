@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -12,9 +12,6 @@ export async function GET(request: NextRequest) {
     }
 
     const unidades = await prisma.unidadeMedida.findMany({
-      where: {
-        userId: user.id
-      },
       orderBy: {
         nome: 'asc'
       }
@@ -53,8 +50,7 @@ export async function POST(request: NextRequest) {
       data: {
         nome,
         abreviacao,
-        tipo: tipo || 'UNIDADE',
-        userId: user.id
+        tipo: tipo || 'UNIDADE'
       }
     })
 

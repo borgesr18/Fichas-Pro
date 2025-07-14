@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { createClient } from '@/lib/supabase'
 
 interface Insumo {
   id: string
@@ -32,7 +31,7 @@ interface Insumo {
 export default function InsumosPage() {
   const [insumos, setInsumos] = useState<Insumo[]>([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
+  const [, setShowForm] = useState(false)
 
   useEffect(() => {
     fetchInsumos()

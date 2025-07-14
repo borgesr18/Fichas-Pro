@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -78,13 +78,13 @@ export async function POST(request: NextRequest) {
         tempoPreparo: tempoPreparo || null,
         temperaturaForno: temperaturaForno || null,
         modoPreparo,
-        pesoFinal: pesoFinal ? parseFloat(pesoFinal) : null,
-        observacoesTecnicas,
+        pesoFinal: pesoFinal ? parseFloat(pesoFinal) : 0,
+        observacoes: observacoesTecnicas,
         nivelDificuldade: nivelDificuldade || 'BASICO',
         versao: 1,
         userId: user.id,
         ingredientes: {
-          create: ingredientes?.map((ing: any) => ({
+          create: ingredientes?.map((ing: { insumoId: string; quantidade: string; porcentagemPadeiro: string }) => ({
             insumoId: ing.insumoId,
             quantidade: parseFloat(ing.quantidade),
             porcentagemPadeiro: parseFloat(ing.porcentagemPadeiro) || null

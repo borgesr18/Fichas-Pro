@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { createClient } from '@/lib/supabase'
 
 interface Fornecedor {
   id: string
@@ -28,7 +27,6 @@ export default function FornecedoresPage() {
     endereco: ''
   })
 
-  const supabase = createClient()
 
   useEffect(() => {
     fetchFornecedores()
