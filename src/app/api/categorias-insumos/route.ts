@@ -7,7 +7,10 @@ export async function GET() {
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('API categorias-insumos GET: Auth check:', { user: user?.email, authError })
+
     if (authError || !user) {
+      console.log('API categorias-insumos GET: Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -35,7 +38,10 @@ export async function POST(request: NextRequest) {
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('API categorias-insumos POST: Auth check:', { user: user?.email, authError })
+
     if (authError || !user) {
+      console.log('API categorias-insumos POST: Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

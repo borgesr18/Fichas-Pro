@@ -19,6 +19,8 @@ export default function RegisterPage() {
     setLoading(true)
     setError('')
 
+    console.log('Attempting registration with email:', email, 'nome:', nome)
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -30,12 +32,21 @@ export default function RegisterPage() {
         },
       })
 
+      console.log('Supabase registration response:', { data, error })
+
       if (error) {
+        console.error('Supabase registration error:', error)
         setError(error.message)
       } else if (data.user) {
-        router.push('/dashboard')
+        console.log('Registration successful, user:', data.user)
+        if (data.user.email_confirmed_at) {
+          router.push('/dashboard')
+        } else {
+          setError('Verifique seu email para confirmar a conta antes de fazer login.')
+        }
       }
-    } catch {
+    } catch (err) {
+      console.error('Unexpected registration error:', err)
       setError('Erro inesperado. Tente novamente.')
     } finally {
       setLoading(false)

@@ -56,13 +56,18 @@ export async function middleware(request: NextRequest) {
 
   const {
     data: { user },
+    error: authError
   } = await supabase.auth.getUser()
 
+  console.log('Middleware: Auth check for', request.nextUrl.pathname, { user: user?.email, authError })
+
   if (!user && !request.nextUrl.pathname.startsWith('/auth')) {
+    console.log('Middleware: Redirecting to login - no user found')
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
   if (user && request.nextUrl.pathname.startsWith('/auth')) {
+    console.log('Middleware: Redirecting to dashboard - user already authenticated')
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

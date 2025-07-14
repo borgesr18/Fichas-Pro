@@ -18,18 +18,25 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
+    console.log('Attempting login with email:', email)
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
+      console.log('Supabase login response:', { data, error })
+
       if (error) {
+        console.error('Supabase login error:', error)
         setError(error.message)
-      } else {
+      } else if (data.user) {
+        console.log('Login successful, user:', data.user)
         router.push('/dashboard')
       }
-    } catch {
+    } catch (err) {
+      console.error('Unexpected login error:', err)
       setError('Erro inesperado. Tente novamente.')
     } finally {
       setLoading(false)

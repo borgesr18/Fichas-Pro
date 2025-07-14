@@ -20,16 +20,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      console.log('DashboardLayout: Getting user...')
+      const { data: { user }, error } = await supabase.auth.getUser()
+      console.log('DashboardLayout: User data:', { user, error })
+      
       setUser(user)
       setLoading(false)
+      
+      if (!user) {
+        console.log('DashboardLayout: No user found, redirecting to login')
+        router.push('/auth/login')
+      } else {
+        console.log('DashboardLayout: User authenticated:', user.email)
+      }
     }
 
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('DashboardLayout: Auth state change:', event, session?.user?.email)
         if (event === 'SIGNED_OUT' || !session) {
+          setUser(null)
           router.push('/auth/login')
         } else {
           setUser(session.user)
