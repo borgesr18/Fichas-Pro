@@ -14,7 +14,7 @@ interface FichaTecnica {
   temperaturaForno?: number
   modoPreparo: string
   pesoFinal?: number
-  observacoesTecnicas?: string
+  observacoes?: string
   nivelDificuldade: string
   versao: number
   ingredientes: Array<{
@@ -169,7 +169,7 @@ export default function FichasTecnicasPage() {
       temperaturaForno: ficha.temperaturaForno?.toString() || '',
       modoPreparo: ficha.modoPreparo,
       pesoFinal: ficha.pesoFinal?.toString() || '',
-      observacoes: ficha.observacoesTecnicas || '',
+      observacoes: ficha.observacoes || '',
       nivelDificuldade: ficha.nivelDificuldade
     })
     setIngredientes(ficha.ingredientes.map(ing => ({
@@ -281,10 +281,10 @@ export default function FichasTecnicasPage() {
             <p>${ficha.modoPreparo.replace(/\n/g, '<br>')}</p>
           </div>
 
-          ${ficha.observacoesTecnicas ? `
+          ${ficha.observacoes ? `
             <div class="observations">
               <h3>Observações Técnicas</h3>
-              <p>${ficha.observacoesTecnicas.replace(/\n/g, '<br>')}</p>
+              <p>${ficha.observacoes.replace(/\n/g, '<br>')}</p>
             </div>
           ` : ''}
         </body>
