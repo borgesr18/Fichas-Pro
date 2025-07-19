@@ -13,7 +13,7 @@ import {
   PrinterIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 const navigation = [
@@ -33,6 +33,14 @@ interface SidebarProps {
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLinkClick = (href: string) => {
+    if (pathname !== href) {
+      router.push(href)
+    }
+    setSidebarOpen(false)
+  }
 
   return (
     <>
@@ -89,23 +97,22 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                   </div>
                   <nav className="mt-5 px-2 space-y-1">
                     {navigation.map((item) => (
-                      <Link
+                      <button
                         key={item.name}
-                        href={item.href}
+                        onClick={() => handleLinkClick(item.href)}
                         className={cn(
                           pathname === item.href
                             ? 'bg-indigo-800 text-white'
                             : 'text-indigo-100 hover:bg-indigo-600',
-                          'group flex items-center px-2 py-2 text-base font-medium rounded-md'
+                          'group flex items-center px-2 py-2 text-base font-medium rounded-md w-full text-left'
                         )}
-                        onClick={() => setSidebarOpen(false)}
                       >
                         <item.icon
                           className="mr-4 flex-shrink-0 h-6 w-6 text-indigo-300"
                           aria-hidden="true"
                         />
                         {item.name}
-                      </Link>
+                      </button>
                     ))}
                   </nav>
                 </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
+import Link from 'next/link'
 
 interface Insumo {
   id: string
@@ -16,22 +17,14 @@ interface Insumo {
     abreviacao: string
   }
   precoPorUnidade: number
-  fornecedor?: {
-    id: string
-    nome: string
-  }
   estoqueAtual: number
   estoqueMinimo: number
   condicaoArmazenamento: string
-  dataCompra?: Date
-  createdAt: Date
-  updatedAt: Date
 }
 
 export default function InsumosPage() {
   const [insumos, setInsumos] = useState<Insumo[]>([])
   const [loading, setLoading] = useState(true)
-  const [, setShowForm] = useState(false)
 
   useEffect(() => {
     fetchInsumos()
@@ -51,6 +44,22 @@ export default function InsumosPage() {
     }
   }
 
+  const handleDelete = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir este insumo?')) {
+      try {
+        const response = await fetch(`/api/insumos/${id}`, {
+          method: 'DELETE',
+        })
+
+        if (response.ok) {
+          await fetchInsumos()
+        }
+      } catch (error) {
+        console.error('Erro ao excluir insumo:', error)
+      }
+    }
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -61,12 +70,11 @@ export default function InsumosPage() {
               Gerencie os insumos utilizados nas receitas
             </p>
           </div>
-          <button
-            onClick={() => setShowForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Novo Insumo
-          </button>
+          <Link href="/insumos/novo">
+            <a className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Novo Insumo
+            </a>
+          </Link>
         </div>
 
         <div className="bg-white shadow rounded-lg">
@@ -132,10 +140,15 @@ export default function InsumosPage() {
                           {insumo.condicaoArmazenamento}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-indigo-600 hover:text-indigo-900 mr-4">
-                            Editar
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
+                          <Link href={`/insumos/${insumo.id}/editar`}>
+                            <a className="text-indigo-600 hover:text-indigo-900 mr-4">
+                              Editar
+                            </a>
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(insumo.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
                             Excluir
                           </button>
                         </td>
