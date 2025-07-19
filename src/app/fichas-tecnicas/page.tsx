@@ -82,7 +82,7 @@ export default function FichasTecnicasPage() {
             <h1>${ficha.nome}</h1>
             <p>Categoria: ${ficha.categoria.nome} | Versão: ${ficha.versao}</p>
           </div>
-          
+
           <div class="info-grid">
             <div>
               <strong>Tempo de Preparo:</strong> ${ficha.tempoPreparo || 'N/A'} min<br>
