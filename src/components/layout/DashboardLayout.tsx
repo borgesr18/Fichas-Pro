@@ -1,9 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
-import { User } from '@supabase/supabase-js'
+import { useState, useEffect } from 'react'
 import Sidebar from './Sidebar'
 import Header from './Header'
 
@@ -12,81 +9,91 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
+    // Simulate loading time for smooth transitions
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
 
-    getUser()
+    return () => clearTimeout(timer)
+  }, [])
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
-          router.push('/auth/login')
-        } else {
-          setUser(session.user)
-        }
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [router, supabase.auth])
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/auth/login')
-  }
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen bg-background-primary flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-16 h-16 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          <div className="relative">
+            <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center animate-pulse">
+              <div className="w-8 h-8 bg-white rounded-lg opacity-80"></div>
+            </div>
+            <div className="absolute inset-0 bg-gradient-primary rounded-2xl animate-ping opacity-20"></div>
           </div>
-          <p className="text-gray-600 font-medium">Carregando...</p>
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-text-primary mb-2">Fichas Pro</h2>
+            <p className="text-text-muted">Carregando sistema...</p>
+          </div>
+          <div className="flex space-x-1">
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          </div>
         </div>
       </div>
     )
   }
 
-  if (!user) {
-    router.push('/auth/login')
-    return null
-  }
-
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-50">
-      <Sidebar 
-        sidebarOpen={sidebarOpen} 
-        setSidebarOpen={setSidebarOpen}
-      />
-      
-      <div className="flex flex-col w-0 flex-1 overflow-hidden md:ml-72">
-        <Header 
-          user={user}
-          onLogout={handleLogout}
-          onMenuClick={() => setSidebarOpen(true)}
-        />
-        
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="fade-in">
-                {children}
-              </div>
+    <div className="min-h-screen bg-background-primary">
+      {/* Sidebar */}
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+      {/* Main content */}
+      <div className="md:pl-80">
+        {/* Header */}
+        <Header setSidebarOpen={setSidebarOpen} />
+
+        {/* Page content */}
+        <main className="relative">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
+          </div>
+
+          {/* Content wrapper */}
+          <div className="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+            <div className="animate-fade-in-up">
+              {children}
             </div>
           </div>
         </main>
       </div>
+
+      {/* Global styles for smooth animations */}
+      <style jsx global>{`
+        .page-transition-enter {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        .page-transition-enter-active {
+          opacity: 1;
+          transform: translateY(0);
+          transition: opacity 300ms ease-out, transform 300ms ease-out;
+        }
+        .page-transition-exit {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .page-transition-exit-active {
+          opacity: 0;
+          transform: translateY(-20px);
+          transition: opacity 200ms ease-in, transform 200ms ease-in;
+        }
+      `}</style>
     </div>
   )
 }
+
