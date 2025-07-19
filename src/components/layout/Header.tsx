@@ -3,13 +3,7 @@
 import React, { Fragment, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { 
-  Bars3Icon,
-  BellIcon,
-  UserCircleIcon,
-  Cog6ToothIcon,
-  ArrowRightOnRectangleIcon,
-  SunIcon,
-  MoonIcon
+  Bars3Icon
 } from '@heroicons/react/24/outline'
 import { Search, Bell, Settings, LogOut, User, Zap, Crown } from 'lucide-react'
 import { cn } from '@/lib/utils'
