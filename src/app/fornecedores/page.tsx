@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import Link from 'next/link'
 import ConfirmationModal from '@/components/common/ConfirmationModal'
 import { toast } from 'sonner'
+import { Plus, Edit, Trash2 } from 'lucide-react'
 
 interface Fornecedor {
   id: string
@@ -70,82 +71,81 @@ export default function FornecedoresPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Fornecedores</h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Gerencie os fornecedores de insumos
+            <h1 className="text-3xl font-bold text-secondary-900">Fornecedores</h1>
+            <p className="mt-1 text-secondary-600">
+              Gerencie seus fornecedores de insumos.
             </p>
           </div>
           <Link href="/fornecedores/novo">
-            <a className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <a className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+              <Plus className="h-5 w-5 mr-2" />
               Novo Fornecedor
             </a>
           </Link>
         </div>
 
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Lista de Fornecedores
-            </h3>
+        <div className="bg-white shadow-sm rounded-lg border border-secondary-200">
+          <div className="p-6">
             {isLoading ? (
-              <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+              <div className="text-center py-10">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-600 mx-auto"></div>
               </div>
             ) : fornecedores.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">
-                Nenhum fornecedor cadastrado ainda.
-              </p>
+              <div className="text-center py-10">
+                <h3 className="text-lg font-medium text-secondary-900">Nenhum fornecedor encontrado</h3>
+                <p className="text-sm text-secondary-500 mt-1">Comece cadastrando um novo fornecedor.</p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-secondary-200">
+                  <thead className="bg-secondary-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-secondary-500 uppercase tracking-wider">
                         Nome
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-secondary-500 uppercase tracking-wider">
                         Contato
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-secondary-500 uppercase tracking-wider">
                         Telefone
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-secondary-500 uppercase tracking-wider">
                         Email
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-secondary-500 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-secondary-200">
                     {fornecedores.map((fornecedor) => (
-                      <tr key={fornecedor.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={fornecedor.id} className="hover:bg-secondary-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">
                           {fornecedor.nome}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
                           {fornecedor.contato || '-'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
                           {fornecedor.telefone || '-'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
                           {fornecedor.email || '-'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right space-x-2">
                           <Link href={`/fornecedores/${fornecedor.id}/editar`}>
-                            <a className="text-indigo-600 hover:text-indigo-900 mr-4">
-                              Editar
+                            <a className="text-primary-600 hover:text-primary-800 p-2 rounded-md hover:bg-primary-100">
+                              <Edit className="h-4 w-4" />
                             </a>
                           </Link>
                           <button
                             onClick={() => openConfirmationModal(fornecedor.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-danger-600 hover:text-danger-800 p-2 rounded-md hover:bg-danger-100"
                           >
-                            Excluir
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </td>
                       </tr>

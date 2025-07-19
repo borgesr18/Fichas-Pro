@@ -42,6 +42,40 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
     setSidebarOpen(false)
   }
 
+  const sidebarContent = (
+    <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+      <div className="flex items-center flex-shrink-0 px-4">
+        <h1 className="text-white text-xl font-bold">
+          Fichas Pro
+        </h1>
+      </div>
+      <nav className="mt-8 flex-1 px-2 space-y-2">
+        {navigation.map((item) => (
+          <Link
+            key={item.name}
+            href={item.href}
+            onClick={(e) => {
+              e.preventDefault()
+              handleLinkClick(item.href)
+            }}
+            className={cn(
+              pathname.startsWith(item.href)
+                ? 'bg-primary-700 text-white'
+                : 'text-primary-100 hover:bg-primary-600 hover:text-white',
+              'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors'
+            )}
+          >
+            <item.icon
+              className="mr-3 flex-shrink-0 h-6 w-6 text-primary-300"
+              aria-hidden="true"
+            />
+            {item.name}
+          </Link>
+        ))}
+      </nav>
+    </div>
+  )
+
   return (
     <>
       <Transition.Root show={sidebarOpen} as={Fragment}>
@@ -55,7 +89,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-75" />
+            <div className="fixed inset-0 bg-secondary-600 bg-opacity-75" />
           </Transition.Child>
 
           <div className="fixed inset-0 flex z-40">
@@ -68,7 +102,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
             >
-              <Dialog.Panel className="relative flex-1 flex flex-col max-w-xs w-full bg-indigo-700">
+              <Dialog.Panel className="relative flex-1 flex flex-col max-w-xs w-full bg-primary-800">
                 <Transition.Child
                   as={Fragment}
                   enter="ease-in-out duration-300"
@@ -89,33 +123,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                     </button>
                   </div>
                 </Transition.Child>
-                <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                  <div className="flex-shrink-0 flex items-center px-4">
-                    <h1 className="text-white text-lg font-semibold">
-                      Fichas Técnicas
-                    </h1>
-                  </div>
-                  <nav className="mt-5 px-2 space-y-1">
-                    {navigation.map((item) => (
-                      <button
-                        key={item.name}
-                        onClick={() => handleLinkClick(item.href)}
-                        className={cn(
-                          pathname === item.href
-                            ? 'bg-indigo-800 text-white'
-                            : 'text-indigo-100 hover:bg-indigo-600',
-                          'group flex items-center px-2 py-2 text-base font-medium rounded-md w-full text-left'
-                        )}
-                      >
-                        <item.icon
-                          className="mr-4 flex-shrink-0 h-6 w-6 text-indigo-300"
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </button>
-                    ))}
-                  </nav>
-                </div>
+                {sidebarContent}
               </Dialog.Panel>
             </Transition.Child>
             <div className="flex-shrink-0 w-14" aria-hidden="true">
@@ -125,34 +133,8 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
       </Transition.Root>
 
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-        <div className="flex-1 flex flex-col min-h-0 bg-indigo-700">
-          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
-              <h1 className="text-white text-xl font-bold">
-                Fichas Técnicas
-              </h1>
-            </div>
-            <nav className="mt-5 flex-1 px-2 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    pathname === item.href
-                      ? 'bg-indigo-800 text-white'
-                      : 'text-indigo-100 hover:bg-indigo-600',
-                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
-                  )}
-                >
-                  <item.icon
-                    className="mr-3 flex-shrink-0 h-6 w-6 text-indigo-300"
-                    aria-hidden="true"
-                  />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
+        <div className="flex-1 flex flex-col min-h-0 bg-primary-800">
+          {sidebarContent}
         </div>
       </div>
     </>

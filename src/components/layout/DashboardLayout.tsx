@@ -47,8 +47,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-secondary-50">
+        <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-primary-600"></div>
       </div>
     )
   }
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100">
+    <div className="h-screen flex overflow-hidden bg-secondary-100">
       <Sidebar 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
@@ -73,7 +73,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         />
         
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6">
+          <div className="py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
               {children}
             </div>
