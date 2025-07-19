@@ -46,10 +46,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Apply dark theme by default */
-html {
-  @apply dark;
-}
+/* Apply dark theme by default - removed @apply dark */
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

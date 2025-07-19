@@ -9,12 +9,11 @@ import {
   TruckIcon,
   CubeIcon,
   ChartBarIcon,
-  DocumentTextIcon,
   PrinterIcon
 } from '@heroicons/react/24/outline'
 import { ChefHat, Sparkles, Users, Activity } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 const navigation = [

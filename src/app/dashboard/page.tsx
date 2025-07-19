@@ -2,10 +2,6 @@
 
 import React from 'react'
 import { 
-  ChartBarIcon, 
-  DocumentTextIcon, 
-  CubeIcon,
-  TruckIcon,
   PlusIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
@@ -15,7 +11,6 @@ import {
 } from '@heroicons/react/24/outline'
 import { 
   ChefHat, 
-  TrendingUp, 
   DollarSign, 
   Package, 
   Users, 

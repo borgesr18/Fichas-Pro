@@ -4,7 +4,6 @@ import React, { Fragment, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { 
   Bars3Icon,
-  MagnifyingGlassIcon,
   BellIcon,
   UserCircleIcon,
   Cog6ToothIcon,
