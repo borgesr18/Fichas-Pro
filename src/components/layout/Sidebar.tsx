@@ -10,16 +10,16 @@ import {
   CubeIcon,
   ChartBarIcon,
   DocumentTextIcon,
-  PrinterIcon,
-  ChefHatIcon
+  PrinterIcon
 } from '@heroicons/react/24/outline'
+import { ChefHat } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Fichas Técnicas', href: '/fichas-tecnicas', icon: ChefHatIcon },
+  { name: 'Fichas Técnicas', href: '/fichas-tecnicas', icon: ChefHat },
   { name: 'Insumos', href: '/insumos', icon: CubeIcon },
   { name: 'Fornecedores', href: '/fornecedores', icon: TruckIcon },
   { name: 'Estoque', href: '/estoque', icon: ChartBarIcon },
@@ -48,8 +48,8 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
       {/* Logo e Título */}
       <div className="flex items-center flex-shrink-0 px-6 mb-8">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-            <ChefHatIcon className="h-6 w-6 text-white" />
+          <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+            <ChefHat className="h-6 w-6 text-white" />
           </div>
           <div>
             <h1 className="text-white text-xl font-bold">
@@ -107,7 +107,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
       <div className="px-4 pt-4 border-t border-secondary-800">
         <div className="bg-secondary-800/50 rounded-lg p-4">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
               <DocumentTextIcon className="h-4 w-4 text-white" />
             </div>
             <div className="flex-1 min-w-0">

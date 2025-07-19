@@ -2,8 +2,8 @@
 
 import React from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import { ArrowRight, FileText, Package, Truck, TrendingUp, Clock, Users } from 'lucide-react'
-import { ChefHatIcon, CubeIcon, TruckIcon } from '@heroicons/react/24/outline'
+import { ArrowRight, FileText, Package, Truck, TrendingUp, Clock, Users, ChefHat } from 'lucide-react'
+import { CubeIcon, TruckIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
 const StatCard = ({ 
@@ -128,12 +128,12 @@ export default function DashboardPage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard 
-            icon={<ChefHatIcon className="h-6 w-6 text-white" />} 
+            icon={<ChefHat className="h-6 w-6 text-white" />} 
             title="Fichas Técnicas" 
             value={12} 
             change="+3 este mês"
             changeType="positive"
-            color="bg-gradient-primary" 
+            color="bg-orange-500" 
           />
           <StatCard 
             icon={<CubeIcon className="h-6 w-6 text-white" />} 
@@ -165,16 +165,16 @@ export default function DashboardPage() {
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-secondary-900">Ações Rápidas</h2>
-              <div className="w-12 h-1 bg-gradient-primary rounded-full"></div>
+              <div className="w-12 h-1 bg-orange-500 rounded-full"></div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <QuickActionCard
                 href="/fichas-tecnicas/novo"
-                icon={<ChefHatIcon className="h-6 w-6 text-white" />}
+                icon={<ChefHat className="h-6 w-6 text-white" />}
                 title="Nova Ficha Técnica"
                 description="Criar uma nova receita com ingredientes e modo de preparo"
-                color="bg-gradient-primary"
+                color="bg-orange-500"
               />
               <QuickActionCard
                 href="/insumos/novo"
@@ -204,16 +204,16 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-secondary-900">Atividade Recente</h2>
-              <div className="w-12 h-1 bg-gradient-primary rounded-full"></div>
+              <div className="w-12 h-1 bg-orange-500 rounded-full"></div>
             </div>
             
             <div className="card p-6">
               <div className="space-y-1">
                 <RecentActivityItem
-                  icon={<ChefHatIcon className="h-4 w-4 text-white" />}
+                  icon={<ChefHat className="h-4 w-4 text-white" />}
                   title="Ficha 'Pão Francês' criada"
                   time="2 horas atrás"
-                  color="bg-gradient-primary"
+                  color="bg-orange-500"
                 />
                 <RecentActivityItem
                   icon={<Package className="h-4 w-4 text-white" />}

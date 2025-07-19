@@ -47,12 +47,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-background">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center shadow-elegant">
+          <div className="w-16 h-16 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
             <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-secondary-600 font-medium">Carregando...</p>
+          <p className="text-gray-600 font-medium">Carregando...</p>
         </div>
       </div>
     )
@@ -64,7 +64,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gradient-background">
+    <div className="h-screen flex overflow-hidden bg-gray-50">
       <Sidebar 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
