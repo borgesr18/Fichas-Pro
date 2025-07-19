@@ -47,8 +47,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-secondary-50">
-        <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-primary-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-background">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-16 h-16 bg-gradient-primary rounded-xl flex items-center justify-center shadow-elegant">
+            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-secondary-600 font-medium">Carregando...</p>
+        </div>
       </div>
     )
   }
@@ -59,13 +64,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-secondary-100">
+    <div className="h-screen flex overflow-hidden bg-gradient-background">
       <Sidebar 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
       />
       
-      <div className="flex flex-col w-0 flex-1 overflow-hidden">
+      <div className="flex flex-col w-0 flex-1 overflow-hidden md:ml-72">
         <Header 
           user={user}
           onLogout={handleLogout}
@@ -74,8 +79,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
           <div className="py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="fade-in">
+                {children}
+              </div>
             </div>
           </div>
         </main>
